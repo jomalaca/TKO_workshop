@@ -34,16 +34,16 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - name: Build and push Docker image
+        run: |
+          docker build . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+        
       - name: Sysdig Secure Inline Scan 
         run: |
           curl -LO "https://download.sysdig.com/scanning/bin/sysdig-cli-scanner/$(curl -L -s https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt)/linux/amd64/sysdig-cli-scanner"
           chmod +x ./sysdig-cli-scanner
-          SECURE_API_TOKEN=${{ secrets.SYSDIG_SECURE_TOKEN }} ./sysdig-cli-scanner --apiurl https://us2.app.sysdig.com ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --policy sysdig_best_practices
+          SECURE_API_TOKEN=${{ secrets.SYSDIG_SECURE_TOKEN }} ./sysdig-cli-scanner --apiurl https://us2.app.sysdig.com ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.run_number }} --policy sysdig_best_practices
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+      - name: push Docker image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
