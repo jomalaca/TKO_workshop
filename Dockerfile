@@ -3,8 +3,6 @@ FROM node:18.9.0-slim
 # Create app directory
 WORKDIR /usr/src/app
 
-RUN npm install
-
 COPY . .
 
 EXPOSE 3000
